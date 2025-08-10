@@ -1,0 +1,23 @@
+{
+  "name": "gitlab-cicd-variables-editor-bookmarklet",
+  "version": "1.0.0",
+  "description": "A simple JavaScript bookmarklet for editing GitLab CI/CD variables via a popup.",
+  "main": "bookmarklet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zouabimourad/gitlab-cicd-variables-editor-bookmarklet.git"
+  },
+  "author": "Mourad ZOUABI",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zouabimourad/gitlab-cicd-variables-editor-bookmarklet/issues"
+  },
+  "homepage": "https://github.com/zouabimourad/gitlab-cicd-variables-editor-bookmarklet#readme",
+  "dependencies": {
+    "uglify-js": "^3.19.3"
+  }
+}
