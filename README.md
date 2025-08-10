@@ -2,6 +2,8 @@
 
 A simple JavaScript bookmarklet for editing GitLab CI/CD variables via a popup with syntax highlighting and better editing capabilities.
 
+![GitLab CI/CD Variables Editor Bookmarklet](misc/img/img.png)
+
 ## Features
 
 - Opens a popup editor with CodeMirror for editing GitLab CI/CD variables
