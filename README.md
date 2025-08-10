@@ -1,13 +1,12 @@
 # GitLab CI/CD Variables Editor Bookmarklet
 
-A simple JavaScript bookmarklet for editing GitLab CI/CD variables via a popup with syntax highlighting and better editing capabilities.
-
-![GitLab CI/CD Variables Editor Bookmarklet](misc/img/img.png)
+A simple JavaScript bookmarklet for editing GitLab CI/CD variables via a popup with syntax highlighting, language detection, and better editing capabilities.
 
 ## Features
 
-- Opens a popup editor with CodeMirror for editing GitLab CI/CD variables
-- Syntax highlighting for YAML content
+- Opens a popup editor with Monaco Editor for editing GitLab CI/CD variables
+- Intelligent language detection using Monaco's language registry with a scoring system
+- Syntax highlighting based on detected language
 - Keyboard shortcuts (Escape to close)
 - Save and close functionality
 

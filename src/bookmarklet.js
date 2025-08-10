@@ -19,11 +19,15 @@
     }
 
     async function initEditor() {
-        const codeMirrorBaseUrl = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13';
-        loadCSS(codeMirrorBaseUrl + '/codemirror.min.css');
-        loadCSS(codeMirrorBaseUrl + '/theme/neo.min.css');
-        await loadScript(codeMirrorBaseUrl + '/codemirror.min.js');
-        await loadScript(codeMirrorBaseUrl + '//mode/yaml/yaml.min.js');
+        // Load Monaco Editor from CDN
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js');
+
+        // Configure require paths for Monaco
+        window.require.config({
+            paths: {
+                'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'
+            }
+        });
 
         const overlay = document.createElement('div');
         overlay.style = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998; display: flex; align-items: center; justify-content: center;';
@@ -42,9 +46,11 @@
         saveBtn.style = 'padding: 4px 10px; font-size: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;';
         saveBtn.addEventListener('click', e => {
             e.stopPropagation();
-            textarea.value = cm.getValue();
+            if (editor) {
+                textarea.value = editor.getValue();
+            }
             closePopin();
-            textarea.focus()
+            textarea.focus();
         });
         const exitBtn = document.createElement('button');
         exitBtn.textContent = '❌ Exit';
@@ -59,20 +65,43 @@
         modal.appendChild(buttonRow);
         overlay.appendChild(modal);
         document.body.appendChild(overlay);
-        const cm = CodeMirror(editorContainer, {
-            value: textarea.value,
-            mode: 'yaml',
-            theme: 'neo',
-            lineNumbers: true,
-            tabSize: 2,
-            indentUnit: 2
+        // Create a div for Monaco editor
+        const monacoContainer = document.createElement('div');
+        monacoContainer.style.height = '100%';
+        monacoContainer.style.width = '100%';
+        editorContainer.appendChild(monacoContainer);
+        
+        // Detect language based on content
+        let language = 'yaml'; // Default language
+
+        function detectFormat(t) {
+            t = t.trim();
+            if (/^[\{\[]/.test(t) && (()=>{try{return JSON.parse(t),1}catch(e){}})()) return "json";
+            if (/^\[.+\]\s*\n(?:.+\n)*?.+=.+$/m.test(t)) return /".*"|\[.*\]|\d+/.test(t) ? "toml" : "ini";
+            if (/^[^:\n]+:\s*.+$/m.test(t)) return "yaml";
+            return "unknown";
+        }
+
+        const content = textarea.value;
+        language = detectFormat( content);
+
+        // Initialize Monaco editor
+        let editor;
+        window.require(['vs/editor/editor.main'], function() {
+            editor = monaco.editor.create(monacoContainer, {
+                value: textarea.value,
+                language: language,
+                theme: 'vs-light',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 11,
+                tabSize: 2
+            });
+            
+            // Focus the editor
+            editor.focus();
         });
-        const wrapper = cm.getWrapperElement();
-        wrapper.style.height = '100%';
-        wrapper.style.width = '100%';
-        wrapper.style.fontSize = '11px';
-        cm.refresh();
-        cm.focus();
 
         function onEscape(e) {
             if (e.key === 'Escape' && document.body.contains(overlay)) {
@@ -83,14 +112,17 @@
         }
         document.addEventListener('keydown', onEscape, true);
 
-        function onResize() {
-            cm.refresh();
-        }
-        window.addEventListener('resize', onResize);
+        // Monaco handles resize automatically with automaticLayout: true
+        window.addEventListener('resize', () => {
+            // No need to manually refresh as Monaco handles this
+        });
 
         function closePopin() {
             document.removeEventListener('keydown', onEscape, true);
-            window.removeEventListener('resize', onResize);
+            window.removeEventListener('resize', () => {});
+            if (editor) {
+                editor.dispose(); // Properly dispose Monaco editor
+            }
             overlay.remove();
         }
     }
